@@ -11,9 +11,15 @@ export class BootScene extends Phaser.Scene {
     this.load.image('nr-assets-2', 'assets/sprites/nr-assets-2.webp');
     this.load.image('nr-assets-3', 'assets/sprites/nr-assets-3.webp');
     this.load.image('nr-assets-4', 'assets/sprites/nr-assets-4.webp');
-    this.load.image('nr-sandrine', 'assets/sprites/nr-sandrine.png');
-    this.load.image('nr-nina',     'assets/sprites/nr-nina.png');
+    this.load.image('nr-camille',  'assets/sprites/nr-camille.png');
     this.load.image('nr-damien',   'assets/sprites/nr-damien.png');
+    this.load.image('nr-guillaume','assets/sprites/nr-guillaume.png');
+    this.load.image('nr-jc',       'assets/sprites/nr-jc.png');
+    this.load.image('nr-lolo',     'assets/sprites/nr-lolo.png');
+    this.load.image('nr-mathilde', 'assets/sprites/nr-mathilde.png');
+    this.load.image('nr-nina',     'assets/sprites/nr-nina.png');
+    this.load.image('nr-romain',   'assets/sprites/nr-romain.png');
+    this.load.image('nr-sandrine', 'assets/sprites/nr-sandrine.png');
   }
 
   create() {

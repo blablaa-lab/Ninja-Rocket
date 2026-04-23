@@ -7,9 +7,15 @@ export class SpawnManager {
     this.difficultyStep = 20000;
 
     this.objectTypes = [
-      { key: 'nr-sandrine', points: 30, isMember: true,  weight: 3 },
-      { key: 'nr-nina',     points: 30, isMember: true,  weight: 3 },
-      { key: 'nr-damien',   points: 30, isMember: true,  weight: 3 },
+      { key: 'nr-camille',  points: 30, isMember: true, weight: 3 },
+      { key: 'nr-damien',   points: 30, isMember: true, weight: 3 },
+      { key: 'nr-guillaume',points: 30, isMember: true, weight: 3 },
+      { key: 'nr-jc',       points: 30, isMember: true, weight: 3 },
+      { key: 'nr-lolo',     points: 30, isMember: true, weight: 3 },
+      { key: 'nr-mathilde', points: 30, isMember: true, weight: 3 },
+      { key: 'nr-nina',     points: 30, isMember: true, weight: 3 },
+      { key: 'nr-romain',   points: 30, isMember: true, weight: 3 },
+      { key: 'nr-sandrine', points: 30, isMember: true, weight: 3 },
       { key: 'nr-assets-1', points: 10, isMember: false, weight: 4 }, // clavier
       { key: 'nr-assets-2', points: 5,  isMember: false, weight: 4 }, // câble HDMI
       { key: 'nr-assets-3', points: 15, isMember: false, weight: 3 }, // laptop

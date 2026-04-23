@@ -49,7 +49,7 @@ src/
 
 | Sprite | Type | Points |
 |---|---|---|
-| Sandrine, Nina, Damien | Membres (combinaison spatiale) | 30 pts |
+| Camille, Damien, Guillaume, JC, Lolo, Mathilde, Nina, Romain, Sandrine | Membres (combinaison spatiale) | 30 pts |
 | Laptop | Tech | 15 pts |
 | Clavier, Café | Tech | 10 pts |
 | Câble HDMI | Tech | 5 pts |
