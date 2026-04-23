@@ -1,17 +1,64 @@
-# Blablaa — Starter Project
+# Space Ninja — Ninja Rocket / Werocket
 
-Ce repo est mon starter project personnel, conçu pour initialiser n'importe quel nouveau projet rapidement et avec les bonnes bases.
+Jeu navigateur de type Fruit Ninja à thème spatial, développé pour l'agence **Ninja Rocket (Werocket)**.  
+Les joueurs tranchent des objets tech et des membres de la team qui volent à l'écran, à la main via webcam.
 
-## Ce qu'il contient
+## Stack
 
-- **CLAUDE.md** — Directives de workflow pour Claude Code (planification, sous-agents, gestion des tâches)
-- **_tasks/** — Répertoire de suivi des tâches (`todo.md`) et capitalisation des leçons (`lessons.md`)
-- **_docs/** — Documentation du projet à compléter selon les besoins
+- **Phaser 3.60** (CDN jsDelivr) — moteur de jeu, scènes, tweens, particules
+- **MediaPipe Hands 0.4** (CDN) — suivi de l'index en temps réel
+- **ES6 modules** — pas de bundler, import/export natif
+- **localStorage** — classement persistant (top 10)
 
-## Utilisation
+## Lancer le projet
 
-Cloner ce repo comme point de départ pour un nouveau projet, puis :
+```bash
+cd /Users/guimgn/Studio/Ninja-Rocket
+npx serve .
+# → http://localhost:3000
+```
 
-1. Mettre à jour ce README avec le contexte du nouveau projet
-2. Compléter le CLAUDE.md avec les commandes de build/test/lint une fois le stack choisi
-3. Utiliser `_tasks/todo.md` pour planifier les premières étapes
+> ⚠️ Requis : serveur HTTP (pas `file://`) — MediaPipe et ES modules exigent HTTPS ou localhost.
+
+## Structure
+
+```
+index.html                  Point d'entrée — audio, vidéo, canvas
+assets/
+  audio/nr-gaming-zone.mp3  Musique de fond
+  bg/nr-bghome.png          Fond pendant la partie
+  bg/nr-bghome.mp4          Vidéo de fond (menu + game over)
+  sprites/                  Membres (nr-sandrine/nina/damien) + objets tech
+  ui/nr-logo.png            Logo Ninja Rocket
+src/
+  main.js                   Config Phaser + gestion musique + vidéo de fond
+  HandTracker.js            Suivi du doigt via MediaPipe (EMA + vélocité)
+  scenes/
+    BootScene.js            Chargement assets + génération textures procédurales
+    MenuScene.js            Menu principal, sélecteur caméra, classement
+    GameScene.js            Boucle de jeu, HUD, combo, countdown
+    GameOverScene.js        Score final, saisie prénom, navigation
+  utils/
+    SliceDetector.js        Détection de tranche + trail Bézier
+    SpawnManager.js         Spawn et trajectoires paraboliques des objets
+    AudioManager.js         Sons procéduraux via Web Audio API
+    Leaderboard.js          Persistance des scores (localStorage)
+```
+
+## Objets en jeu
+
+| Sprite | Type | Points |
+|---|---|---|
+| Sandrine, Nina, Damien | Membres (combinaison spatiale) | 30 pts |
+| Laptop | Tech | 15 pts |
+| Clavier, Café | Tech | 10 pts |
+| Câble HDMI | Tech | 5 pts |
+
+**Combo** : 3 tranches → ×2 · 6 tranches → ×3  
+**Durée** : 60 secondes
+
+## Ajouter un membre
+
+1. Déposer le PNG dans `assets/sprites/`
+2. Ajouter `this.load.image('nr-prenom', 'assets/sprites/nr-prenom.png')` dans `BootScene.preload()`
+3. Ajouter `{ key: 'nr-prenom', points: 30, isMember: true, weight: 3 }` dans `SpawnManager.objectTypes`
