@@ -14,6 +14,8 @@ export class GameOverScene extends Phaser.Scene {
 
   create() {
     showBgVideo();
+    // Pas d'overlay sombre — vidéo à pleine luminosité
+    document.getElementById('bg-overlay').classList.remove('visible');
     setMusicVolume(0.40, 800);
     this.cameras.main.setBackgroundColor('rgba(0,0,0,0)');
     this._build();
@@ -36,11 +38,11 @@ export class GameOverScene extends Phaser.Scene {
     const W = this.scale.width;
     const H = this.scale.height;
 
-    // ── Panneau central ───────────────────────────────────────────────
-    const panelW = Math.min(W * 0.52, 660);
-    const panelH = H * 0.82;
+    // ── Panneau central (même largeur que le menu) ────────────────────
+    const panelW = Math.min(W * 0.62, 780);
+    const panelH = H * 0.88;
     const panelX = W / 2 - panelW / 2;
-    const panelY = H * 0.09;
+    const panelY = H * 0.06;
 
     const panel = this.add.graphics();
     panel.fillStyle(0x000814, 0.78);
@@ -48,18 +50,20 @@ export class GameOverScene extends Phaser.Scene {
     panel.lineStyle(1, 0x1a3a5c, 0.6);
     panel.strokeRoundedRect(panelX, panelY, panelW, panelH, 18);
 
-    // ── Logo ──────────────────────────────────────────────────────────
-    const logoW = panelW * 0.65;
+    // ── Logo (identique au menu) ──────────────────────────────────────
+    const logoW = panelW * 0.72;
     const logoH = logoW * (768 / 1376);
-    this.add.image(W / 2, panelY + logoH * 0.65, 'nr-logo')
+    this.add.image(W / 2, H * 0.155, 'nr-logo')
       .setDisplaySize(logoW, logoH)
       .setOrigin(0.5);
 
-    // ── Titre GAME OVER ───────────────────────────────────────────────
-    const titleY = panelY + logoH * 1.35;
-    const title  = this.add.text(W / 2, titleY, 'GAME OVER', {
-      fontSize: `${Math.round(H * 0.062)}px`, fontFamily: 'monospace',
-      color: '#EF5350', stroke: '#000000', strokeThickness: 5, align: 'center'
+    // ── Titre FIN DE PARTIE ───────────────────────────────────────────
+    const titleY = H * 0.155 + logoH * 0.65;
+    const title  = this.add.text(W / 2, titleY, 'FIN DE PARTIE', {
+      fontSize: `${Math.round(H * 0.058)}px`,
+      fontFamily: 'Arial Black, Impact, sans-serif',
+      fontStyle: 'bold',
+      color: '#EF5350', stroke: '#000000', strokeThickness: 6, align: 'center'
     }).setOrigin(0.5).setAlpha(0).setScale(0.7);
 
     this.tweens.add({
@@ -68,7 +72,7 @@ export class GameOverScene extends Phaser.Scene {
     });
 
     // ── Score ─────────────────────────────────────────────────────────
-    const scoreY = titleY + H * 0.09;
+    const scoreY = titleY + H * 0.088;
     this.add.text(W / 2, scoreY, `${this.finalScore} pts`, {
       fontSize: `${Math.round(H * 0.050)}px`, fontFamily: 'monospace',
       color: '#FFD54F', stroke: '#000000', strokeThickness: 4, align: 'center'
@@ -85,35 +89,60 @@ export class GameOverScene extends Phaser.Scene {
     const inputY = inviteY + H * 0.045;
     this._createNameInput(W, inputY);
 
-    // ── Bouton REJOUER ────────────────────────────────────────────────
+    // ── Bouton REJOUER (style identique au bouton JOUER du menu) ─────
     const replayY = inputY + H * 0.115;
     const replayBtn = this.add.text(W / 2, replayY, '[ REJOUER ]', {
-      fontSize: `${Math.round(H * 0.038)}px`, fontFamily: 'monospace',
-      color: '#81C784', stroke: '#000000', strokeThickness: 3, align: 'center'
+      fontSize: `${Math.round(H * 0.048)}px`, fontFamily: 'monospace',
+      color: '#ffffff', stroke: '#4FC3F7', strokeThickness: 5, align: 'center'
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    replayBtn.on('pointerover', () => replayBtn.setColor('#4CAF50'));
-    replayBtn.on('pointerout',  () => replayBtn.setColor('#81C784'));
+    this.tweens.add({
+      targets: replayBtn, scaleX: 1.05, scaleY: 1.05,
+      duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+    });
+
+    replayBtn.on('pointerover', () => replayBtn.setColor('#4FC3F7'));
+    replayBtn.on('pointerout',  () => replayBtn.setColor('#ffffff'));
     replayBtn.on('pointerdown', () => {
       hideBgVideo();
       this._cleanupInput();
       this.scene.start('GameScene');
     });
 
-    // ── Bouton MENU ───────────────────────────────────────────────────
-    const menuY = replayY + H * 0.065;
+    // ── Bouton MENU (style identique au bouton JOUER, plus petit) ────
+    const menuY = replayY + H * 0.075;
     const menuBtn = this.add.text(W / 2, menuY, '[ MENU ]', {
-      fontSize: `${Math.round(H * 0.026)}px`, fontFamily: 'monospace',
-      color: '#90A4AE', stroke: '#000000', strokeThickness: 2, align: 'center'
+      fontSize: `${Math.round(H * 0.032)}px`, fontFamily: 'monospace',
+      color: '#ffffff', stroke: '#4FC3F7', strokeThickness: 4, align: 'center'
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    menuBtn.on('pointerover', () => menuBtn.setColor('#B0BEC5'));
-    menuBtn.on('pointerout',  () => menuBtn.setColor('#90A4AE'));
+    menuBtn.on('pointerover', () => menuBtn.setColor('#4FC3F7'));
+    menuBtn.on('pointerout',  () => menuBtn.setColor('#ffffff'));
     menuBtn.on('pointerdown', () => {
       this._cleanupInput();
       showBgVideo();
       this.scene.start('MenuScene');
     });
+
+    // ── Personnages décoratifs (même taille que le menu H×0.62) ──────
+    const charH      = H * 0.62;
+    const panelEdgeL = W / 2 - panelW / 2;
+    const panelEdgeR = W / 2 + panelW / 2;
+
+    // JC — haut droite, plus petit
+    const jc = this.add.image(panelEdgeR + panelW * 0.14, H * 0.02, 'nr-jc2')
+      .setOrigin(0.5, 0).setDepth(20);
+    jc.setScale((charH * 0.55) / jc.height);
+
+    // Nina — droite du container, légèrement plus grande
+    const nina = this.add.image(panelEdgeR + panelW * 0.10, H, 'nr-nina2')
+      .setOrigin(0.5, 1).setDepth(20);
+    nina.setScale((charH * 0.85) / nina.height);
+
+    // Lolo — légèrement décalé à droite
+    const lolo = this.add.image(panelEdgeL - panelW * 0.04, H, 'nr-lolo2')
+      .setOrigin(0.5, 1).setDepth(20);
+    lolo.setScale((charH * 0.72) / lolo.height);
   }
 
   _createNameInput(W, topPx) {

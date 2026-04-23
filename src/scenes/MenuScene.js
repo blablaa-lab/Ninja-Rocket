@@ -10,6 +10,8 @@ export class MenuScene extends Phaser.Scene {
 
   create() {
     showBgVideo();
+    // Pas d'overlay sombre sur le menu — la vidéo s'affiche à pleine luminosité
+    document.getElementById('bg-overlay').classList.remove('visible');
     this.cameras.main.setBackgroundColor('rgba(0,0,0,0)');
     this._build();
 
@@ -34,7 +36,7 @@ export class MenuScene extends Phaser.Scene {
 
     // ── Panneau central ───────────────────────────────────────────────
     const panelW = Math.min(W * 0.62, 780);
-    const panelH = H * 0.88;
+    const panelH = H * 0.76;
     const panel  = this.add.graphics();
     panel.fillStyle(0x000814, 0.72);
     panel.fillRoundedRect(W / 2 - panelW / 2, H * 0.06, panelW, panelH, 18);
@@ -88,6 +90,21 @@ export class MenuScene extends Phaser.Scene {
 
     // ── Leaderboard ───────────────────────────────────────────────────
     this._buildLeaderboard(W, H);
+
+    // ── Personnages gauche / droite (par-dessus le panneau) ───────────
+    const charH    = H * 0.62;
+    const panelEdgeL = W / 2 - panelW / 2;
+    const panelEdgeR = W / 2 + panelW / 2;
+
+    const guigui = this.add.image(panelEdgeL - panelW * 0.12, H, 'nr-guigui2')
+      .setOrigin(0.5, 1)
+      .setDepth(20);
+    guigui.setScale(charH / guigui.height);
+
+    const camille = this.add.image(panelEdgeR + panelW * 0.12, H, 'nr-camille2')
+      .setOrigin(0.5, 1)
+      .setDepth(20);
+    camille.setScale(charH / camille.height);
   }
 
   // ── Sélecteur de caméra ───────────────────────────────────────────

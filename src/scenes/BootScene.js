@@ -7,6 +7,16 @@ export class BootScene extends Phaser.Scene {
   preload() {
     this.load.image('nr-logo',     'assets/ui/nr-logo.png');
     this.load.image('nr-bghome',   'assets/bg/nr-bghome.png');
+    this.load.image('nr-frame',    'assets/bg/nr-bghome.webp');
+    this.load.image('nr-guigui2',  'assets/sprites/nr-guigui2.png');
+    this.load.image('nr-camille2', 'assets/sprites/nr-camille2.png');
+    this.load.image('nr-jc2',      'assets/sprites/nr-jc2.png');
+    this.load.image('nr-nina2',    'assets/sprites/nr-nina2.png');
+    this.load.image('nr-lolo2',    'assets/sprites/nr-lolo2.png');
+    this.load.image('nr-monster1', 'assets/sprites/nr-monster1.png');
+    this.load.image('nr-monster2', 'assets/sprites/nr-monster2.png');
+    this.load.image('nr-monster3', 'assets/sprites/nr-monster3.png');
+    this.load.image('nr-bonus',    'assets/sprites/nr-bonus.png');
     this.load.image('nr-assets-1', 'assets/sprites/nr-assets-1.webp');
     this.load.image('nr-assets-2', 'assets/sprites/nr-assets-2.webp');
     this.load.image('nr-assets-3', 'assets/sprites/nr-assets-3.webp');

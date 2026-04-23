@@ -41,7 +41,10 @@ export class GameScene extends Phaser.Scene {
     this._fingerVelY    = 0;
     this._lastFingerT   = 0;
 
-    // Pas de fond fixe — la webcam (transparence Phaser) sert de fond
+    // Cadre cockpit par-dessus la webcam (depth 3 — sous les objets)
+    this.add.image(W / 2, H / 2, 'nr-frame')
+      .setDisplaySize(W, H)
+      .setDepth(3);
 
     // Systèmes
     this.audio         = new AudioManager();
@@ -223,46 +226,54 @@ export class GameScene extends Phaser.Scene {
   _sliceObject(obj) {
     const basePts  = obj.gameData?.points ?? 10;
     const isMember = obj.gameData?.isMember ?? false;
+    const isMalus  = obj.gameData?.isMalus  ?? false;
+    const isBonus  = obj.gameData?.isBonus  ?? false;
     const now      = this.time.now;
 
-    // ── Gestion du combo ────────────────────────────────────────────
-    if (now - this._lastSliceTime < COMBO_WINDOW) {
-      this._comboCount++;
-    } else {
-      this._comboCount = 1;
+    // ── Combo (désactivé pour les malus) ─────────────────────────────
+    if (!isMalus) {
+      if (now - this._lastSliceTime < COMBO_WINDOW) {
+        this._comboCount++;
+      } else {
+        this._comboCount = 1;
+      }
+      this._lastSliceTime = now;
+      if (this._comboResetEvt) this._comboResetEvt.remove();
+      this._comboResetEvt = this.time.delayedCall(COMBO_RESET, () => {
+        this._comboCount = 0;
+        this._hideComboDisplay();
+      });
     }
-    this._lastSliceTime = now;
 
-    // Annuler le reset précédent et en programmer un nouveau
-    if (this._comboResetEvt) this._comboResetEvt.remove();
-    this._comboResetEvt = this.time.delayedCall(COMBO_RESET, () => {
-      this._comboCount = 0;
-      this._hideComboDisplay();
-    });
-
-    const multiplier = this._comboCount >= 6 ? 3
-                     : this._comboCount >= 3 ? 2
+    const multiplier = (!isMalus && this._comboCount >= 6) ? 3
+                     : (!isMalus && this._comboCount >= 3) ? 2
                      : 1;
-    const pts = basePts * multiplier;
 
-    this.score += pts;
+    const pts = isMalus ? basePts : basePts * multiplier; // malus pas multiplié
+    this.score = Math.max(0, this.score + pts);
     this._updateScore();
 
-    // ── Feedback visuel & sonore ────────────────────────────────────
-    if (isMember) {
+    // ── Feedback visuel & sonore ─────────────────────────────────────
+    if (isMalus) {
+      this.audio.slice();
+      this.cameras.main.flash(200, 255, 0, 0, false); // flash rouge
+    } else if (isBonus) {
+      this.audio.memberSlice();
+      this.cameras.main.flash(180, 255, 215, 0, false); // flash doré
+    } else if (isMember) {
       this.audio.memberSlice();
     } else {
       this.audio.slice();
     }
 
-    if (this._comboCount >= 2) {
+    if (!isMalus && this._comboCount >= 2) {
       this.audio.combo(this._comboCount);
       this._showComboDisplay(this._comboCount, multiplier);
     }
 
-    this._flashSlice(obj, isMember);
-    this._spawnParticles(obj.x, obj.y, isMember);
-    this._showPointsPopup(obj.x, obj.y, pts, isMember, multiplier);
+    this._flashSlice(obj, isMember || isBonus, isMalus);
+    this._spawnParticles(obj.x, obj.y, isMember || isBonus, isMalus);
+    this._showPointsPopup(obj.x, obj.y, pts, isMember || isBonus, multiplier);
     obj.destroy();
   }
 
@@ -300,9 +311,9 @@ export class GameScene extends Phaser.Scene {
 
   // ── Flash tranche ─────────────────────────────────────────────────
 
-  _flashSlice(obj, isMember) {
+  _flashSlice(obj, isMember, isMalus = false) {
     const size  = Math.max(obj.displayWidth, obj.displayHeight);
-    const color = isMember ? 0xFFD54F : 0xffffff;
+    const color = isMalus ? 0xFF1744 : isMember ? 0xFFD54F : 0xffffff;
 
     const halo = this.add.circle(obj.x, obj.y, size * 0.55, color, 0.85)
       .setDepth(18);
@@ -340,15 +351,18 @@ export class GameScene extends Phaser.Scene {
 
   // ── Particules ────────────────────────────────────────────────────
 
-  _spawnParticles(x, y, isMember) {
-    const emitter = this.add.particles(x, y, 'star', {
-      speed:    { min: 80, max: isMember ? 300 : 200 },
+  _spawnParticles(x, y, isMember, isMalus = false) {
+    const tint     = isMalus ? 0xFF1744 : isMember ? 0xFFD54F : 0x88ccff;
+    const count    = isMember ? 22 : isMalus ? 14 : 10;
+    const maxSpeed = isMember ? 300 : 200;
+    const emitter  = this.add.particles(x, y, 'star', {
+      speed:    { min: 80, max: maxSpeed },
       scale:    { start: isMember ? 0.9 : 0.5, end: 0 },
-      tint:     isMember ? 0xFFD54F : 0x88ccff,
+      tint,
       lifespan: isMember ? 800 : 500,
       angle:    { min: 0, max: 360 }
     });
-    emitter.explode(isMember ? 22 : 10, x, y);
+    emitter.explode(count, x, y);
     this.time.delayedCall(900, () => emitter.destroy());
   }
 
