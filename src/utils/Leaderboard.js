@@ -20,10 +20,13 @@ async function _sendToSheets(name, score) {
 export async function getScoresFromSheets() {
   if (!SHEETS_ENDPOINT || SHEETS_ENDPOINT.startsWith('REMPLACER')) return [];
   try {
-    const res = await fetch(`${SHEETS_ENDPOINT}?action=scores`);
-    const data = await res.json();
+    const res  = await fetch(`${SHEETS_ENDPOINT}?action=scores&_t=${Date.now()}`, { credentials: 'omit' });
+    const text = await res.text();
+    console.log('[Leaderboard] Sheets brut :', text);
+    const data = JSON.parse(text);
     return Array.isArray(data) ? data : [];
-  } catch {
+  } catch (err) {
+    console.warn('[Leaderboard] getScoresFromSheets échoué :', err);
     return [];
   }
 }

@@ -8,8 +8,9 @@ export class GameOverScene extends Phaser.Scene {
   }
 
   init(data) {
-    this.finalScore = data?.score ?? 0;
-    this._input     = null;
+    this.finalScore   = data?.score ?? 0;
+    this._input       = null;
+    this._scoreSaved  = false;
   }
 
   create() {
@@ -104,6 +105,10 @@ export class GameOverScene extends Phaser.Scene {
     replayBtn.on('pointerover', () => replayBtn.setColor('#4FC3F7'));
     replayBtn.on('pointerout',  () => replayBtn.setColor('#ffffff'));
     replayBtn.on('pointerdown', () => {
+      if (!this._scoreSaved) {
+        const ok = window.confirm('Votre score ne sera pas enregistré dans le classement.\nRejouer quand même ?');
+        if (!ok) return;
+      }
       hideBgVideo();
       this._cleanupInput();
       this.scene.start('GameScene');
@@ -119,6 +124,10 @@ export class GameOverScene extends Phaser.Scene {
     menuBtn.on('pointerover', () => menuBtn.setColor('#4FC3F7'));
     menuBtn.on('pointerout',  () => menuBtn.setColor('#ffffff'));
     menuBtn.on('pointerdown', () => {
+      if (!this._scoreSaved) {
+        const ok = window.confirm('Votre score ne sera pas enregistré dans le classement.\nRetourner au menu quand même ?');
+        if (!ok) return;
+      }
       this._cleanupInput();
       showBgVideo();
       this.scene.start('MenuScene');
@@ -182,7 +191,10 @@ export class GameOverScene extends Phaser.Scene {
     this._input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         const name = this._input.value.trim();
-        if (name) saveScore(name, this.finalScore);
+        if (name) {
+          saveScore(name, this.finalScore);
+          this._scoreSaved = true;
+        }
         this._cleanupInput();
         showBgVideo();
         this.scene.start('MenuScene');

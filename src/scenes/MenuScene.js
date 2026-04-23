@@ -74,6 +74,7 @@ export class MenuScene extends Phaser.Scene {
     btn.on('pointerover', () => btn.setColor('#4FC3F7'));
     btn.on('pointerout',  () => btn.setColor('#ffffff'));
     btn.on('pointerdown', () => {
+      this._cleanupLeaderboard();
       startMusic();
       hideBgVideo();
       const deviceId = HandTracker.getSavedDeviceId();
