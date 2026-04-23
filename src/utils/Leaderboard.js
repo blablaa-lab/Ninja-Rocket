@@ -8,12 +8,10 @@ const SHEETS_ENDPOINT = 'https://script.google.com/macros/s/AKfycby3NBiFMpXte4nh
 async function _sendToSheets(name, score) {
   if (!SHEETS_ENDPOINT || SHEETS_ENDPOINT.startsWith('REMPLACER')) return;
   try {
-    await fetch(SHEETS_ENDPOINT, {
-      method : 'POST',
-      mode   : 'no-cors',   // Google Apps Script n'envoie pas de header CORS explicite
-      headers: { 'Content-Type': 'application/json' },
-      body   : JSON.stringify({ name, score, date: Date.now() }),
-    });
+    // GET + query params : seule méthode fiable avec Apps Script en no-cors
+    // (pas de preflight, pas de restriction sur les headers)
+    const url = `${SHEETS_ENDPOINT}?name=${encodeURIComponent(name)}&score=${encodeURIComponent(score)}&date=${Date.now()}`;
+    await fetch(url, { method: 'GET', mode: 'no-cors' });
   } catch (err) {
     console.warn('[Leaderboard] Envoi Google Sheets échoué :', err);
   }
