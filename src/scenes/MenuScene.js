@@ -1,5 +1,5 @@
 // src/scenes/MenuScene.js
-import { getScores }   from '../utils/Leaderboard.js';
+import { getScores, getScoresFromSheets } from '../utils/Leaderboard.js';
 import { HandTracker }              from '../HandTracker.js';
 import { showBgVideo, hideBgVideo, startMusic } from '../main.js';
 
@@ -21,13 +21,21 @@ export class MenuScene extends Phaser.Scene {
 
   shutdown() {
     this.scale.off('resize', this._onResize, this);
+    this._cleanupLeaderboard();
   }
 
   _onResize() {
-    // Détruire tous les objets de la scène et reconstruire
+    this._cleanupLeaderboard();
     this.children.removeAll(true);
     this._camLabel = null;
     this._build();
+  }
+
+  _cleanupLeaderboard() {
+    if (this._leaderboardDiv?.parentNode) {
+      this._leaderboardDiv.parentNode.removeChild(this._leaderboardDiv);
+      this._leaderboardDiv = null;
+    }
   }
 
   _build() {
@@ -177,12 +185,15 @@ export class MenuScene extends Phaser.Scene {
   // ── Leaderboard ───────────────────────────────────────────────────
 
   _buildLeaderboard(W, H) {
-    const scores  = getScores();
-    const panelW  = Math.min(W * 0.62, 780);
-    const startY  = H * 0.495;
-    const fSm     = `${Math.round(H * 0.015)}px`;
-    const fMd     = `${Math.round(H * 0.020)}px`;
+    const panelW = Math.min(W * 0.62, 780);
+    const startY = H * 0.495;
+    const fSm    = `${Math.round(H * 0.015)}px`;
+    const tableW = panelW * 0.88;
+    const tableY = startY + H * 0.038;
+    // Hauteur fixe jusqu'au bas du panneau (panelY + panelH = H*0.06 + H*0.76 = H*0.82)
+    const scrollH = Math.max(60, H * 0.82 - tableY - 8);
 
+    // Séparateur + titre CLASSEMENT (Phaser, synchrone)
     const sepG = this.add.graphics();
     sepG.lineStyle(1, 0x1a3a5c, 0.8);
     sepG.beginPath();
@@ -194,45 +205,81 @@ export class MenuScene extends Phaser.Scene {
       fontSize: fSm, fontFamily: 'monospace', color: '#4FC3F7', align: 'center'
     }).setOrigin(0.5);
 
+    // Conteneur HTML scrollable — position fixe sur l'écran (Phaser RESIZE = coords = px écran)
+    this._cleanupLeaderboard();
+    const div = document.createElement('div');
+    div.style.cssText = `
+      position: fixed;
+      left: ${Math.round(W / 2 - tableW / 2)}px;
+      top: ${Math.round(tableY)}px;
+      width: ${Math.round(tableW)}px;
+      height: ${Math.round(scrollH)}px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      z-index: 500;
+      scrollbar-width: thin;
+      scrollbar-color: #1a3a5c transparent;
+      box-sizing: border-box;
+    `;
+    div.innerHTML = `<p style="color:#546E7A;font-family:monospace;font-size:${fSm};text-align:center;margin:12px 0">Chargement…</p>`;
+    document.body.appendChild(div);
+    this._leaderboardDiv = div;
+
+    // Injection du style de scrollbar webkit (une seule fois)
+    if (!document.getElementById('nr-scroll-style')) {
+      const s = document.createElement('style');
+      s.id = 'nr-scroll-style';
+      s.textContent = `
+        .nr-scroll::-webkit-scrollbar { width: 4px; }
+        .nr-scroll::-webkit-scrollbar-track { background: transparent; }
+        .nr-scroll::-webkit-scrollbar-thumb { background: #1a3a5c; border-radius: 2px; }
+      `;
+      document.head.appendChild(s);
+    }
+    div.classList.add('nr-scroll');
+
+    // Fetch asynchrone — remplace le placeholder quand les données arrivent
+    getScoresFromSheets().then(remote => {
+      if (!this._leaderboardDiv) return; // scène quittée pendant le fetch
+      const scores = remote.length ? remote : getScores();
+      this._renderLeaderboardRows(scores, H, fSm);
+    }).catch(() => {
+      if (!this._leaderboardDiv) return;
+      this._renderLeaderboardRows(getScores(), H, fSm);
+    });
+  }
+
+  _renderLeaderboardRows(scores, H, fSm) {
+    const div = this._leaderboardDiv;
+    if (!div) return;
+
     if (scores.length === 0) {
-      this.add.text(W / 2, startY + H * 0.05, 'Aucun score — lancez une partie !', {
-        fontSize: fMd, fontFamily: 'monospace', color: '#546E7A', align: 'center'
-      }).setOrigin(0.5);
+      div.innerHTML = `<p style="color:#546E7A;font-family:monospace;font-size:${fSm};text-align:center;margin:12px 0">Aucun score — lancez une partie !</p>`;
       return;
     }
 
-    const medals  = ['🥇', '🥈', '🥉'];
-    const colors  = ['#FFD54F', '#B0BEC5', '#FFAB76'];
-    const rowH    = Math.round(H * 0.048);
-    const tableW  = panelW * 0.88;
-    const maxRows = Math.min(scores.length, 7); // 7 lignes max pour tenir dans l'écran
-    const tableX  = W / 2;
-    const tableY  = startY + H * 0.03;
+    const medals = ['🥇', '🥈', '🥉'];
+    const colors = ['#FFD54F', '#B0BEC5', '#FFAB76'];
+    const rowPx  = Math.round(H * 0.046);
+    const fMd    = `${Math.round(H * 0.019)}px`;
 
-    scores.slice(0, maxRows).forEach((entry, i) => {
-      const y     = tableY + i * rowH + rowH / 2;
-      const medal = medals[i] ?? `${i + 1}.`;
-      const color = colors[i] ?? '#607D8B';
-      const left  = tableX - tableW / 2 + 16;
-      const right = tableX + tableW / 2 - 16;
-
-      if (i % 2 === 0) {
-        this.add.rectangle(tableX, y, tableW, rowH, 0xffffff, 0.04).setOrigin(0.5);
-      }
-
-      this.add.text(left + 30, y, medal, { fontSize: fMd, fontFamily: 'monospace', color }).setOrigin(0.5);
-
-      const name = entry.name.length > 18 ? entry.name.slice(0, 17) + '…' : entry.name;
-      this.add.text(left + 58, y, name, {
-        fontSize: fMd, fontFamily: 'monospace',
-        color: '#ffffff', stroke: '#000000', strokeThickness: 2
-      }).setOrigin(0, 0.5);
-
-      this.add.text(right, y, `${entry.score} pts`, {
-        fontSize: fMd, fontFamily: 'monospace',
-        color, stroke: '#000000', strokeThickness: 2
-      }).setOrigin(1, 0.5);
-    });
-
+    div.innerHTML = scores.map((entry, i) => {
+      const medal  = medals[i] ?? `${i + 1}.`;
+      const color  = colors[i] ?? '#607D8B';
+      const name   = (entry.name || '').length > 18 ? entry.name.slice(0, 17) + '…' : (entry.name || '—');
+      const bg     = i % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'transparent';
+      return `
+        <div style="
+          display:flex; align-items:center; justify-content:space-between;
+          height:${rowPx}px; padding:0 12px;
+          background:${bg};
+          font-family:monospace; font-size:${fMd};
+          box-sizing:border-box;
+        ">
+          <span style="color:${color}; min-width:32px; text-align:center">${medal}</span>
+          <span style="color:#ffffff; flex:1; padding:0 8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${name}</span>
+          <span style="color:${color}; white-space:nowrap">${entry.score} pts</span>
+        </div>`;
+    }).join('');
   }
 }

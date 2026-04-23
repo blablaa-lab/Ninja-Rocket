@@ -17,6 +17,17 @@ async function _sendToSheets(name, score) {
   }
 }
 
+export async function getScoresFromSheets() {
+  if (!SHEETS_ENDPOINT || SHEETS_ENDPOINT.startsWith('REMPLACER')) return [];
+  try {
+    const res = await fetch(`${SHEETS_ENDPOINT}?action=scores`);
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
 // ── Local storage ────────────────────────────────────────────────────────────
 const KEY = 'spaceninja_scores';
 
