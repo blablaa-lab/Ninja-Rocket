@@ -85,13 +85,20 @@ export class HandTracker {
 
     this._active      = true;
     this._initialized = true;
+    this._sending     = false;
 
-    // Boucle de traitement via RAF (équivalent à Camera utils, sans la contrainte deviceId)
+    // Boucle découplée : le RAF tourne à 60fps indépendamment de MediaPipe.
+    // Un flag _sending évite d'envoyer un nouveau frame pendant qu'un est en cours.
+    // Résultat : le curseur extrapole sans attendre la fin du traitement MediaPipe.
     const loop = () => {
       if (!this._active) return;
-      this.hands.send({ image: this.videoElement })
-        .then(() => requestAnimationFrame(loop))
-        .catch(() => requestAnimationFrame(loop));
+      requestAnimationFrame(loop); // toujours planifier en premier
+      if (!this._sending) {
+        this._sending = true;
+        this.hands.send({ image: this.videoElement })
+          .then(() => { this._sending = false; })
+          .catch(() => { this._sending = false; });
+      }
     };
     requestAnimationFrame(loop);
 

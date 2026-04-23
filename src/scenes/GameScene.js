@@ -184,7 +184,7 @@ export class GameScene extends Phaser.Scene {
     // dans la direction du dernier mouvement avec décroissance exponentielle.
     // Décroissance sur 60ms → à t+60ms le vecteur est à 37%, à t+120ms à 14%.
     const elapsed = performance.now() - this._lastFingerT;
-    const decay   = Math.exp(-elapsed / 60);
+    const decay   = Math.exp(-elapsed / 150); // élargi à 150ms pour absorber les pics MediaPipe lors d'un coup
     const targetX = this._fingerX + this._fingerVelX * elapsed * decay;
     const targetY = this._fingerY + this._fingerVelY * elapsed * decay;
 
