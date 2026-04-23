@@ -86,7 +86,7 @@ export class GameOverScene extends Phaser.Scene {
     this._createNameInput(W, inputY);
 
     // ── Bouton REJOUER ────────────────────────────────────────────────
-    const replayY = inputY + H * 0.080;
+    const replayY = inputY + H * 0.115;
     const replayBtn = this.add.text(W / 2, replayY, '[ REJOUER ]', {
       fontSize: `${Math.round(H * 0.038)}px`, fontFamily: 'monospace',
       color: '#81C784', stroke: '#000000', strokeThickness: 3, align: 'center'
