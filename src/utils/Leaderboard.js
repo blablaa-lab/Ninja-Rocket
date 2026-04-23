@@ -1,4 +1,25 @@
 // src/utils/Leaderboard.js
+
+// ── Google Sheets ────────────────────────────────────────────────────────────
+// URL du Google Apps Script déployé en "Web App" (mode Anyone, exécuté en tant que vous).
+// Remplacer cette valeur par l'URL obtenue après déploiement.
+const SHEETS_ENDPOINT = 'https://script.google.com/macros/s/AKfycby3NBiFMpXte4nhO0-ZuNSX8ACmPABwFD6pJ548IHL4IjHisfEb0aTJiPlHNGWrrUBk4w/exec';
+
+async function _sendToSheets(name, score) {
+  if (!SHEETS_ENDPOINT || SHEETS_ENDPOINT.startsWith('REMPLACER')) return;
+  try {
+    await fetch(SHEETS_ENDPOINT, {
+      method : 'POST',
+      mode   : 'no-cors',   // Google Apps Script n'envoie pas de header CORS explicite
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ name, score, date: Date.now() }),
+    });
+  } catch (err) {
+    console.warn('[Leaderboard] Envoi Google Sheets échoué :', err);
+  }
+}
+
+// ── Local storage ────────────────────────────────────────────────────────────
 const KEY = 'spaceninja_scores';
 
 export function saveScore(name, score) {
@@ -7,6 +28,10 @@ export function saveScore(name, score) {
   scores.sort((a, b) => b.score - a.score);
   const top10 = scores.slice(0, 10);
   localStorage.setItem(KEY, JSON.stringify(top10));
+
+  // Envoi asynchrone vers Google Sheets (sans bloquer le jeu)
+  _sendToSheets(name, score);
+
   return top10;
 }
 

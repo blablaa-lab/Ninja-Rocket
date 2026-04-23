@@ -1,5 +1,5 @@
 // src/scenes/MenuScene.js
-import { getScores, clearScores }   from '../utils/Leaderboard.js';
+import { getScores }   from '../utils/Leaderboard.js';
 import { HandTracker }              from '../HandTracker.js';
 import { showBgVideo, hideBgVideo, startMusic } from '../main.js';
 
@@ -234,13 +234,5 @@ export class MenuScene extends Phaser.Scene {
       }).setOrigin(1, 0.5);
     });
 
-    const resetY = tableY + maxRows * rowH + H * 0.018;
-    const resetBtn = this.add.text(W / 2, resetY, 'Effacer les scores', {
-      fontSize: fSm, fontFamily: 'monospace', color: '#37474F', align: 'center'
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-    resetBtn.on('pointerover', () => resetBtn.setColor('#EF5350'));
-    resetBtn.on('pointerout',  () => resetBtn.setColor('#37474F'));
-    resetBtn.on('pointerdown', () => { clearScores(); this._onResize(); });
   }
 }
