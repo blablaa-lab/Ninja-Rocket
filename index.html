@@ -84,6 +84,79 @@
     #ui-controls button:hover  { opacity: 1; transform: scale(1.12); }
     #ui-controls button:active { transform: scale(0.93); }
     #ui-controls img { width: 42px; height: 42px; display: block; }
+
+    /* ── Popup règles du jeu ── */
+    #rules-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 8, 20, 0.60);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    #rules-backdrop.open { display: flex; }
+
+    #rules-modal {
+      background: rgba(0, 8, 20, 0.95);
+      border: 1px solid #1a3a5c;
+      border-radius: 18px;
+      padding: 40px 48px;
+      max-width: 560px;
+      width: 90%;
+      color: #fff;
+      font-family: monospace;
+      position: relative;
+      animation: rulesIn 0.25s ease;
+    }
+    @keyframes rulesIn {
+      from { opacity: 0; transform: scale(0.88); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    #rules-modal h2 {
+      font-size: 1.4rem;
+      color: #4FC3F7;
+      letter-spacing: 3px;
+      margin-bottom: 24px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    #rules-modal ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    #rules-modal li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: #B3E5FC;
+    }
+    #rules-modal li .icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    #rules-modal li strong { color: #FFD54F; }
+
+    #rules-close {
+      position: absolute;
+      top: 14px; right: 18px;
+      background: none;
+      border: none;
+      color: #546E7A;
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    #rules-close:hover { color: #fff; }
   </style>
 </head>
 <body>
@@ -106,6 +179,43 @@
     <button id="btn-fullscreen" title="Plein écran">
       <img id="btn-fullscreen-img" src="assets/ui/nr-fullscreen.png" alt="Plein écran">
     </button>
+    <button id="btn-infos" title="Règles du jeu">
+      <img src="assets/ui/nr-btninfos.png" alt="Règles">
+    </button>
+  </div>
+
+  <!-- Popup règles du jeu -->
+  <div id="rules-backdrop">
+    <div id="rules-modal">
+      <button id="rules-close" title="Fermer">✕</button>
+      <h2>Règles du jeu</h2>
+      <ul>
+        <li>
+          <span class="icon">⏱️</span>
+          <span>La partie dure <strong>60 secondes</strong>. Soyez rapide !</span>
+        </li>
+        <li>
+          <span class="icon">✋</span>
+          <span>Utilisez votre <strong>main devant la caméra</strong> pour trancher les objets qui volent à l'écran.</span>
+        </li>
+        <li>
+          <span class="icon">👥</span>
+          <span>Trancher un <strong>membre de l'équipe</strong> rapporte <strong>+30 pts</strong>.</span>
+        </li>
+        <li>
+          <span class="icon">💥</span>
+          <span>Enchaînez les tranches sans rater pour activer un <strong>Combo ×2</strong> puis <strong>×3</strong> et multiplier vos points.</span>
+        </li>
+        <li>
+          <span class="icon">💣</span>
+          <span>Évitez les <strong>bombes</strong> — les trancher fait perdre des points !</span>
+        </li>
+        <li>
+          <span class="icon">🏆</span>
+          <span>En fin de partie, entrez votre prénom pour apparaître au <strong>classement</strong>.</span>
+        </li>
+      </ul>
+    </div>
   </div>
 
   <div id="game-container">

@@ -123,6 +123,20 @@ document.addEventListener('fullscreenchange',       _updateFsIcon);
 document.addEventListener('webkitfullscreenchange', _updateFsIcon);
 document.addEventListener('mozfullscreenchange',    _updateFsIcon);
 
+// -- Popup règles --
+const _backdrop   = document.getElementById('rules-backdrop');
+const _rulesClose = document.getElementById('rules-close');
+const _btnInfos   = document.getElementById('btn-infos');
+
+_btnInfos.addEventListener('click', () => _backdrop.classList.add('open'));
+_rulesClose.addEventListener('click', () => _backdrop.classList.remove('open'));
+_backdrop.addEventListener('click', (e) => {
+  if (e.target === _backdrop) _backdrop.classList.remove('open');
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') _backdrop.classList.remove('open');
+});
+
 // ── Phaser ────────────────────────────────────────────────────────────
 const config = {
   type: Phaser.AUTO,
