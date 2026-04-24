@@ -66,6 +66,63 @@ function _fadeTo(target, duration) {
   _fadeRaf = requestAnimationFrame(step);
 }
 
+// ── Boutons de contrôle (son + fullscreen) ────────────────────────────
+
+// -- Son --
+const _soundBtn    = document.getElementById('btn-sound');
+const _soundImg    = document.getElementById('btn-sound-img');
+let   _muted       = localStorage.getItem('nr-muted') === 'true';
+
+function _applySoundState() {
+  _music.muted   = _muted;
+  _soundImg.src  = _muted
+    ? 'assets/ui/nr-btnnosound.png'
+    : 'assets/ui/nr-btnsound.png';
+  localStorage.setItem('nr-muted', _muted);
+}
+
+_applySoundState(); // applique la préférence sauvegardée dès le démarrage
+
+_soundBtn.addEventListener('click', () => {
+  _muted = !_muted;
+  _applySoundState();
+});
+
+// -- Fullscreen --
+const _fsBtn = document.getElementById('btn-fullscreen');
+const _fsImg = document.getElementById('btn-fullscreen-img');
+
+function _updateFsIcon() {
+  const inFs = !!(
+    document.fullscreenElement ||
+    document.webkitFullscreenElement ||
+    document.mozFullScreenElement
+  );
+  _fsImg.src = inFs
+    ? 'assets/ui/nr-exitfullscreen.png'
+    : 'assets/ui/nr-fullscreen.png';
+}
+
+_fsBtn.addEventListener('click', () => {
+  const inFs = !!(
+    document.fullscreenElement ||
+    document.webkitFullscreenElement ||
+    document.mozFullScreenElement
+  );
+  if (inFs) {
+    (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen)
+      .call(document);
+  } else {
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen)
+      .call(el).catch(() => {});
+  }
+});
+
+document.addEventListener('fullscreenchange',       _updateFsIcon);
+document.addEventListener('webkitfullscreenchange', _updateFsIcon);
+document.addEventListener('mozfullscreenchange',    _updateFsIcon);
+
 // ── Phaser ────────────────────────────────────────────────────────────
 const config = {
   type: Phaser.AUTO,

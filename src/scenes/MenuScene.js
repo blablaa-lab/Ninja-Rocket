@@ -105,12 +105,16 @@ export class MenuScene extends Phaser.Scene {
     const panelEdgeL = W / 2 - panelW / 2;
     const panelEdgeR = W / 2 + panelW / 2;
 
-    const guigui = this.add.image(panelEdgeL - panelW * 0.12, H, 'nr-guigui2')
+    // Positionner à ~70 % de l'espace latéral depuis le bord de l'écran
+    const guiguiX  = panelEdgeL * 0.70;
+    const camilleX = panelEdgeR + (W - panelEdgeR) * 0.30;
+
+    const guigui = this.add.image(guiguiX, H, 'nr-guigui2')
       .setOrigin(0.5, 1)
       .setDepth(20);
     guigui.setScale(charH / guigui.height);
 
-    const camille = this.add.image(panelEdgeR + panelW * 0.12, H, 'nr-camille2')
+    const camille = this.add.image(camilleX, H, 'nr-camille2')
       .setOrigin(0.5, 1)
       .setDepth(20);
     camille.setScale(charH / camille.height);

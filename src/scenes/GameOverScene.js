@@ -137,19 +137,20 @@ export class GameOverScene extends Phaser.Scene {
     const charH      = H * 0.62;
     const panelEdgeL = W / 2 - panelW / 2;
     const panelEdgeR = W / 2 + panelW / 2;
+    const rightSpace = W - panelEdgeR;
 
     // JC — haut droite, plus petit
-    const jc = this.add.image(panelEdgeR + panelW * 0.14, H * 0.02, 'nr-jc2')
+    const jc = this.add.image(panelEdgeR + rightSpace * 0.38, H * 0.02, 'nr-jc2')
       .setOrigin(0.5, 0).setDepth(20);
     jc.setScale((charH * 0.55) / jc.height);
 
     // Nina — droite du container, légèrement plus grande
-    const nina = this.add.image(panelEdgeR + panelW * 0.10, H, 'nr-nina2')
+    const nina = this.add.image(panelEdgeR + rightSpace * 0.28, H, 'nr-nina2')
       .setOrigin(0.5, 1).setDepth(20);
     nina.setScale((charH * 0.85) / nina.height);
 
-    // Lolo — légèrement décalé à droite
-    const lolo = this.add.image(panelEdgeL - panelW * 0.04, H, 'nr-lolo2')
+    // Lolo — gauche du container
+    const lolo = this.add.image(panelEdgeL * 0.70, H, 'nr-lolo2')
       .setOrigin(0.5, 1).setDepth(20);
     lolo.setScale((charH * 0.72) / lolo.height);
   }
